@@ -1,0 +1,16 @@
+Fichier "model.py" :
+
+-> Utilisation du modèle pré-entrainé ResNet50.
+Il s'agit d'un Réseau de Neurones Convolutif (CNN en anglais).
+C'est un modèle qui a été pré-entraîné sur des images (à partir de la base de données ImageNet). Il a donc appris à reconnaître des formes, textures, objets... à partir d'image, ce qui semble pertinent pour repérer les caractéristiques de nos affiches de films.
+ResNet50, comme son nom, l'indique est constitué de 50 couches. Il existe d'autres modèles ResNet, cependant ResNet50 semble être un bon compromis car il apprend à capturer davantage de caractéristiques des certains modèles avec moins de couches, tout en limitant le temps de calcul et le risque de surapprentissage par rapport à des modèles avec plus de couches.
+
+-> Gel des couches 
+Les premières couches ont déjà appris à reconnaître des caractéristiques "de bas niveaux" (formes, textures, couleurs) à partir d'un grand nombre d'images et n'ont donc pas besoin d'être ré-entraînées. Seules les poids de la dernière couche sont recalculés afin de capturer des caractéristiques plus spécifiques de notre jeu de données (nos affiches).
+
+
+
+Fichier "train.py" :
+
+-> Utilisation de la Cross-Entropy comme fonction de perte
+Adaptée comme on est dans un problème de classification multiclasse.

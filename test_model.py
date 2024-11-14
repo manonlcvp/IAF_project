@@ -1,14 +1,23 @@
 import os
 import torch
 from torchvision import transforms
+import argparse
 from PIL import Image
 from model import load_model
 
 # Configurations
-model_path = "model.pth"
-image_path = "images_test/110.jpg"  # Remplace par le chemin d'une image d'affiche de test
+def parse_args():
+    parser = argparse.ArgumentParser(description='Test a model for movie genre prediction.')
+    parser.add_argument('--image', type=str, required=True, help='Path to the image of the movie poster')
+    parser.add_argument('--model_path', type=str, required=True, help='Path to the trained model file')
+    return parser.parse_args()
 
-# Préparation de l'image
+# Chargement des arguments (récupération depuis la ligne de commande)
+args = parse_args()
+image_path = args.image
+model_path = args.model_path
+
+# Transformation de l'image pour la prédiction
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -17,13 +26,18 @@ transform = transforms.Compose([
 image = Image.open(image_path).convert("RGB")
 image = transform(image).unsqueeze(0)  # Ajouter une dimension pour le batch
 
-# Charger le modèle
-num_classes = len(os.listdir('data'))
-model = load_model(num_classes)
-model.load_state_dict(torch.load(model_path))
-model.eval()  # Mettre le modèle en mode évaluation
+# Définition du device (GPU si disponible, sinon CPU)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# Prédire
+# Chargement du modèle et configuration du mode évaluation
+num_classes = len(os.listdir('data'))
+model = load_model(num_classes, device) 
+model.load_state_dict(torch.load(model_path, map_location=device))
+model.eval()
+
+image = image.to(device)
+
+# Prédiction du genre du film associé à l'image
 with torch.no_grad():
     output = model(image)
     _, predicted = torch.max(output, 1)

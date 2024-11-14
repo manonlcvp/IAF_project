@@ -7,23 +7,26 @@ import os
 
 def train_model(data_dir, model_save_path, num_classes, num_epochs=10, batch_size=32, lr=0.001):
     """
-    Entraîner le modèle sur un dataset d'images et sauvegarder les poids du modèle.
+    Objectif = Entraîner le modèle sur un dataset d'images et sauvegarder les poids du modèle.
     """
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # utilisation du GPU si possible
+
     # Transformation des images
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # valeurs de moyenne et d'ecart type standardisees pour un modele pre-entraine sur ImageNet
     ])
     
-    # Charger le dataset
+    # Chargement du dataset
     dataset = datasets.ImageFolder(data_dir, transform=transform)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
-    # Créer le modèle
-    model = load_model(num_classes)
+    # Création du modèle
+    model = load_model(num_classes, device)
     
-    # Définir la fonction de perte et l'optimiseur
+    # Définition de la fonction de perte et l'optimiseur
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
@@ -35,13 +38,15 @@ def train_model(data_dir, model_save_path, num_classes, num_epochs=10, batch_siz
         total_preds = 0
 
         for inputs, labels in dataloader:
+
+            inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
 
-            # Passage avant
+            # Prediction
             outputs = model(inputs)
             loss = criterion(outputs, labels)
 
-            # Retourner la perte
+            # Affichage de la fonction de perte et de la precision
             loss.backward()
             optimizer.step()
 
@@ -54,14 +59,14 @@ def train_model(data_dir, model_save_path, num_classes, num_epochs=10, batch_siz
         accuracy = correct_preds / total_preds * 100
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}, Accuracy: {accuracy:.2f}%")
 
-    # Sauvegarder les poids du modèle
+    # Sauvegarde des poids du modèle
     torch.save(model.state_dict(), model_save_path)
     print(f"Model saved to {model_save_path}")
 
 if __name__ == "__main__":
-    # Spécifie ici le répertoire des images et le chemin de sauvegarde du modèle
-    data_dir = 'data'  # Remplacer par le chemin vers le dataset
+
+    data_dir = 'data'  # Chemin vers le dataset
     model_save_path = 'model.pth'
-    num_classes = 10  # Remplacer par le nombre de genres dans ton dataset
+    num_classes = 10  # 10 categories de films
     
     train_model(data_dir, model_save_path, num_classes)
