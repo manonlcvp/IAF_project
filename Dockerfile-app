@@ -1,0 +1,17 @@
+# Utiliser une image de base Python
+FROM python:3.9-slim
+
+# Copier les fichiers nécessaires dans l'image
+COPY requirements.txt .
+COPY model.py .
+COPY model.pth .
+COPY app.py .
+
+# Installer les dépendances
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Exposer le port pour l'API
+EXPOSE 5002
+
+# Démarrer l'API du modèle Annoy
+CMD ["python", "app.py"]
