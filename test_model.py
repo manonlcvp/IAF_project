@@ -30,7 +30,7 @@ image = transform(image).unsqueeze(0)  # Ajouter une dimension pour le batch
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Chargement du modèle et configuration du mode évaluation
-num_classes = len(os.listdir('data'))
+num_classes = len(os.listdir('data/part 1'))
 model = load_model(num_classes, device) 
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()
@@ -41,5 +41,5 @@ image = image.to(device)
 with torch.no_grad():
     output = model(image)
     _, predicted = torch.max(output, 1)
-    class_names = os.listdir('data')  # Liste des genres
+    class_names = os.listdir('data/part 1')  # Liste des genres
     print(f"Predicted genre: {class_names[predicted.item()]}")
