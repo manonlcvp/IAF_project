@@ -1,2 +1,4 @@
-data/
+#data/
 *.pth
+*.ann
+*.pkl
