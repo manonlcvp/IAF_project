@@ -2,3 +2,5 @@
 *.pth
 *.ann
 *.pkl
+.DS_Store
+__pycache__/
