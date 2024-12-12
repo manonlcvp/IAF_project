@@ -3,9 +3,18 @@ FROM python:3.9-slim
 
 # Copier les fichiers nécessaires dans l'image
 COPY requirements.txt .
-COPY model.py .
-COPY model.pth .
+COPY prediction_model.pth .
+COPY recommendation_model.pth .
+COPY model1.py .
+COPY model2.py .
+COPY movie_posters.ann .
+COPY poster_paths.txt .
 COPY app.py .
+
+# Installer les dépendances nécessaires à la compilation
+RUN apt-get update && \
+    apt-get install -y build-essential python3-dev gcc g++ make && \
+    rm -rf /var/lib/apt/lists/*
 
 # Installer les dépendances
 RUN pip install --no-cache-dir -r requirements.txt

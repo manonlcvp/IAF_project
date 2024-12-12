@@ -1,32 +1,45 @@
 import gradio as gr
 import requests
 
-# URL de l'API Flask
-API_URL = "http://127.0.0.1:5002/predict"
+# URL de l'API
+API_URL_PREDICT = "http://127.0.0.1:5002/predict"
+API_URL_RECOMMEND = "http://127.0.0.1:5002/recommend"
 
-# Fonction pour envoyer l'image à l'API et obtenir la prédiction
 def predict_genre(image):
-    # Convertir l'image pour l'envoyer en tant que fichier dans une requête POST
-    with open(image, "rb") as file:  # Utilisation du gestionnaire de contexte
-        files = {"image": file}
-        response = requests.post(API_URL, files=files)
-    
-    # Vérifier si la requête a réussi
+    with open(image, "rb") as file:
+        response = requests.post(API_URL_PREDICT, files={"image": file})
     if response.status_code == 200:
-        # Récupérer le genre prédit
-        return response.json().get("predicted_genre", "Genre non reconnu")
-    else:
-        # Gérer les erreurs d'API
-        return f"Erreur dans la prédiction (Code: {response.status_code})"
+        return response.json().get("predicted_genre", "Erreur dans la prédiction")
+    return f"Erreur API (Code {response.status_code})"
 
-# Création de l'interface Gradio
-interface = gr.Interface(
-    fn=predict_genre,  # Fonction appelée pour la prédiction
-    inputs=gr.Image(type="filepath"),  # Entrée de type image
-    outputs="text",  # Sortie de type texte (le genre prédit)
+def recommend_movies(image):
+    with open(image, "rb") as file:
+        response = requests.post(API_URL_RECOMMEND, files={"image": file})
+    if response.status_code == 200:
+        posters = response.json()
+        return [poster["path"] for poster in posters]
+    return f"Erreur API (Code {response.status_code})"
+
+# Interface Gradio pour prédiction de genre
+genre_interface = gr.Interface(
+    fn=predict_genre,
+    inputs=gr.Image(type="filepath"),
+    outputs="text",
     title="Prédiction de Genre de Film",
     description="Charge une affiche de film pour prédire son genre."
 )
 
-# Lancer l'interface
-interface.launch()
+# Interface Gradio pour recommandation de films
+recommend_interface = gr.Interface(
+    fn=recommend_movies,
+    inputs=gr.Image(type="filepath"),
+    outputs=gr.Gallery(label="Affiches similaires"),
+    title="Recommandation de Films Similaires",
+    description="Charge une affiche de film pour trouver des affiches similaires."
+)
+
+# Interface tabulée
+gr.TabbedInterface(
+    [genre_interface, recommend_interface],
+    ["Prédiction de Genre", "Recommandation de Films"]
+).launch()

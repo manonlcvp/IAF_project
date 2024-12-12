@@ -5,7 +5,12 @@ FROM python:3.9-slim
 COPY requirements.txt .
 COPY interface.py .
 
-# Installer les dépendances
+# Installer les dépendances nécessaires à la compilation
+RUN apt-get update && \
+    apt-get install -y build-essential python3-dev gcc g++ make && \
+    rm -rf /var/lib/apt/lists/*
+
+# Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Exposer le port de l'application Gradio
@@ -13,4 +18,3 @@ EXPOSE 7860
 
 # Démarrer l'application Gradio
 CMD ["python", "interface.py"]
-

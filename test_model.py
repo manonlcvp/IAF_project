@@ -3,7 +3,7 @@ import torch
 from torchvision import transforms
 import argparse
 from PIL import Image
-from model import load_model
+from model1 import load_model
 
 # Configurations
 def parse_args():
