@@ -126,7 +126,7 @@ def recommend_based_on_plot():
             return jsonify({'error': 'Invalid method'}), 400
 
         similar_indices = index.get_nns_by_vector(input_vector, 5, include_distances=True)
-        recommendations = [{"title": movies_metadata[i]["title"], "distance": d} for i, d in zip(*similar_indices)]
+        recommendations = [{"title": movies_metadata.iloc[i]["title"], "distance": d} for i, d in zip(*similar_indices)]
 
         return jsonify(recommendations)
     

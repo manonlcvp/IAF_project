@@ -36,7 +36,7 @@ def recommend_movies_by_plot(plot, method):
         response = requests.post(API_URL_RECOMMEND_PLOT, json=payload)
         if response.status_code == 200:
             movies = response.json()
-            return [f"{movie['title']} (Distance: {movie['distance']:.2f})" for movie in movies]
+            return [[movie['title'], movie['distance']] for movie in movies]
         return f"Erreur API (Code {response.status_code}) : {response.text}"
     except Exception as e:
         return f"Erreur : {str(e)}"
