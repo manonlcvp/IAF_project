@@ -3,12 +3,17 @@ FROM python:3.9-slim
 
 # Copier les fichiers nécessaires dans l'image
 COPY requirements.txt .
-COPY prediction_model.pth .
-COPY recommendation_model.pth .
-COPY model1.py .
-COPY model2.py .
-COPY movie_posters.ann .
-COPY poster_paths.txt .
+COPY Part_1/prediction_model.pth .
+COPY Part_2/recommendation_model.pth .
+COPY Part_1/model1.py .
+COPY Part_2/model2.py .
+COPY Part_2/movie_posters.ann .
+COPY Part_3/bow_annoy.ann .
+COPY Part_3/distilbert_annoy.ann .
+COPY Part_2/poster_paths.txt .
+COPY Part_3/bag_of_words_embeddings.pkl .
+COPY Part_3/distilbert_embeddings.pkl .
+COPY Part_3/movies_metadata.pkl .
 COPY app.py .
 
 # Installer les dépendances nécessaires à la compilation
