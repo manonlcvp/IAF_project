@@ -2,9 +2,9 @@ import gradio as gr
 import requests
 
 # URLs de l'API
-API_URL_PREDICT = "http://127.0.0.1:5002/predict"
-API_URL_RECOMMEND = "http://127.0.0.1:5002/recommend"
-API_URL_RECOMMEND_PLOT = "http://127.0.0.1:5002/recommend_plot"
+API_URL_PREDICT = "http://model_api:5002/predict" #127.0.0.1:
+API_URL_RECOMMEND = "http://model_api:5002/recommend"
+API_URL_RECOMMEND_PLOT = "http://model_api:5002/recommend_plot"
 
 def predict_genre(image):
     """Prédit le genre du film à partir d'une affiche."""
@@ -77,4 +77,4 @@ plot_recommend_interface = gr.Interface(
 gr.TabbedInterface(
     [genre_interface, recommend_interface, plot_recommend_interface],
     ["Prédiction de Genre", "Recommandation (Affiches)", "Recommandation (Intrigue)"]
-).launch()
+).launch(server_name="0.0.0.0")
