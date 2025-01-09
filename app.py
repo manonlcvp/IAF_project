@@ -133,5 +133,9 @@ def recommend_based_on_plot():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/') # This is the home route, it just returns 'Hello world!'
+def index():    # I use it to check that the server is running and accessible it's not necessary
+    return 'Hello world!'
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(host='0.0.0.0', debug=True, port=5002)
