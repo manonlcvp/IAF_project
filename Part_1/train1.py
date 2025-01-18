@@ -65,7 +65,7 @@ def train_model(data_dir, model_save_path, num_classes, num_epochs=10, batch_siz
 
 if __name__ == "__main__":
 
-    data_dir = 'data/part 1'  # Chemin vers le dataset
+    data_dir = '../data/part 1'  # Chemin vers le dataset
     model_save_path = 'prediction_model.pth'
     num_classes = 10  # 10 categories de films
     

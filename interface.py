@@ -2,17 +2,29 @@ import gradio as gr
 import requests
 
 # URLs de l'API
-API_URL_PREDICT = "http://127.0.0.1:5002/predict"
-API_URL_RECOMMEND = "http://127.0.0.1:5002/recommend"
-API_URL_RECOMMEND_PLOT = "http://127.0.0.1:5002/recommend_plot"
+API_URL_PREDICT = "http://model_api:5002/predict"
+API_URL_RECOMMEND = "http://model_api:5002/recommend"
+API_URL_RECOMMEND_PLOT = "http://model_api:5002/recommend_plot"
 
-def predict_genre(image):
-    """Prédit le genre du film à partir d'une affiche."""
+def predict_genre_and_anomaly(image):
+    """Prédit le genre du film et détecte les anomalies à partir d'une affiche."""
     try:
         with open(image, "rb") as file:
             response = requests.post(API_URL_PREDICT, files={"image": file})
         if response.status_code == 200:
-            return response.json().get("predicted_genre", "Erreur dans la prédiction")
+            data = response.json()
+            genre = data.get("predicted_genre", "Genre inconnu")
+            anomaly = data.get("anomaly_detected", False)
+            reconstruction_error = data.get("reconstruction_error", "N/A")
+
+            # Formater le résultat
+            anomaly_text = "Anomalie détectée" if anomaly else "Aucune anomalie détectée"
+            result = (
+                f"**Genre prédit :** {genre}\n"
+                f"**Anomalie :** {anomaly_text}\n"
+                f"**Erreur de reconstruction :** {reconstruction_error:.4f}"
+            )
+            return result
         return f"Erreur API (Code {response.status_code}) : {response.text}"
     except Exception as e:
         return f"Erreur : {str(e)}"
@@ -41,13 +53,13 @@ def recommend_movies_by_plot(plot, method):
     except Exception as e:
         return f"Erreur : {str(e)}"
 
-# Interface Gradio pour la prédiction de genre
-genre_interface = gr.Interface(
-    fn=predict_genre,
+# Interface Gradio pour la prédiction de genre et la détection d'anomalies
+genre_anomaly_interface = gr.Interface(
+    fn=predict_genre_and_anomaly,
     inputs=gr.Image(type="filepath"),
     outputs="text",
-    title="Prédiction de Genre de Film",
-    description="Charge une affiche de film pour prédire son genre."
+    title="Prédiction de Genre et Détection d'Anomalies",
+    description="Charge une affiche de film pour prédire son genre et détecter des anomalies éventuelles."
 )
 
 # Interface Gradio pour la recommandation de films (affiches)
@@ -75,6 +87,6 @@ plot_recommend_interface = gr.Interface(
 
 # Interface tabulée
 gr.TabbedInterface(
-    [genre_interface, recommend_interface, plot_recommend_interface],
-    ["Prédiction de Genre", "Recommandation (Affiches)", "Recommandation (Intrigue)"]
-).launch()
+    [genre_anomaly_interface, recommend_interface, plot_recommend_interface],
+    ["Prédiction de Genre et Anomalies", "Recommandation (Affiches)", "Recommandation (Intrigue)"]
+).launch(server_name="0.0.0.0")

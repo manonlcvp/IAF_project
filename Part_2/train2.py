@@ -78,7 +78,7 @@ def train_model(data_dir, model_save_path, num_epochs=10, batch_size=32, lr=0.00
     print(f"Model saved to {model_save_path}")
 
 if __name__ == "__main__":
-    data_dir = 'data/part 2'  # Chemin vers le dataset
+    data_dir = '../data/part 2'  # Chemin vers le dataset
     model_save_path = 'recommendation_model.pth'
     
     train_model(data_dir, model_save_path)

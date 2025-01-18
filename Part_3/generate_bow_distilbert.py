@@ -7,7 +7,7 @@ import torch
 import numpy as np
 
 # Charger les métadonnées en assurant le prétraitement
-metadata = pd.read_csv("data/part 3/movies_metadata.csv")
+metadata = pd.read_csv("../data/part 3/movies_metadata.csv")
 
 # Remplacer les valeurs manquantes dans la colonne overview
 metadata["overview"] = metadata["overview"].fillna("")

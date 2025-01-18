@@ -19,6 +19,15 @@ genre_model = load_genre_model(num_classes, device)
 genre_model.load_state_dict(torch.load("Part_1/prediction_model.pth", map_location=device))
 genre_model.eval()
 
+# Modèle d'autoencodeur pour la détection d'anomalies
+from Part_1.model_anomaly import Autoencoder
+anomaly_model = Autoencoder().to(device)
+anomaly_model.load_state_dict(torch.load("Part_1/anomaly_detector.pth", map_location=device))
+anomaly_model.eval()
+
+# Seuil pour détecter les anomalies (valeur à ajuster selon votre modèle)
+anomaly_threshold = 1.5
+
 # Modèle pour les embeddings de recommandation
 def load_recommendation_model():
     from Part_2.model2 import MovieRecommendationModel
@@ -67,22 +76,35 @@ tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 distilbert_model = DistilBertModel.from_pretrained('distilbert-base-uncased')
 
 @app.route('/predict', methods=['POST'])
-def predict_genre():
+def predict_genre_and_anomaly():
     if 'image' not in request.files:
         return jsonify({'error': 'No image uploaded'}), 400
 
+    # Chargement de l'image
     image = request.files['image']
     img = Image.open(image).convert('RGB')
     input_tensor = transform(img).unsqueeze(0).to(device)
 
+    # Prédiction du genre
     with torch.no_grad():
-        outputs = genre_model(input_tensor)
-        _, predicted = torch.max(outputs, 1)
+        genre_outputs = genre_model(input_tensor)
+        _, predicted = torch.max(genre_outputs, 1)
         class_names = ["Action", "Animation", "Comedy", "Documentary", "Drama", 
                        "Fantasy", "Horror", "Romance", "Science Fiction", "Thriller"]
         genre = class_names[predicted.item()]
 
-    return jsonify({'predicted_genre': genre})
+    # Détection d'anomalie
+    with torch.no_grad():
+        reconstructed = anomaly_model(input_tensor)
+        reconstruction_error = torch.nn.functional.mse_loss(reconstructed, input_tensor).item()
+        is_anomaly = reconstruction_error > anomaly_threshold
+
+    # Résultat
+    return jsonify({
+        'predicted_genre': genre,
+        'anomaly_detected': is_anomaly,
+        'reconstruction_error': reconstruction_error
+    })
 
 @app.route('/recommend', methods=['POST'])
 def recommend_movies():
@@ -134,4 +156,4 @@ def recommend_based_on_plot():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(host='0.0.0.0', debug=True, port=5002)

@@ -4,3 +4,5 @@
 *.pkl
 .DS_Store
 __pycache__/
+Part_1/__pycache__/
+Part_2/__pycache__/

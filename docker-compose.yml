@@ -1,18 +1,18 @@
 version: '3.8'
 services:
-  gradio-app:
-    build:
-      context: .
-      dockerfile: Dockerfile-interface 
-    ports:
-      - "7860:7860"  
-    depends_on:
-      model_api:
-        condition: service_healthy  # Attendre que l'API soit prête
-
   model_api:
     build:
       context: .
-      dockerfile: Dockerfile-app  
+      dockerfile: Dockerfile-app
     ports:
-      - "5002:5002"  
+      - "5002:5002"
+
+
+  gradio-app:
+    build:
+      context: .
+      dockerfile: Dockerfile-interface
+    ports:
+      - "7860:7860"
+    depends_on:
+      - model_api
